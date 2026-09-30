@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<title>เช็คชื่อเข้าเรียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root { --primary: #6366f1; --primary-hover: #4f46e5; --secondary: #ec4899; --bg: #f8fafc; --surface: rgba(255, 255, 255, 0.7); --surface-border: rgba(255, 255, 255, 0.5); --text-main: #0f172a; --text-muted: #64748b; --success: #10b981; --danger: #ef4444; --radius-lg: 32px; --radius-md: 20px; --radius-sm: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg); background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%); background-attachment: fixed; color: var(--text-main); font-family: 'Prompt', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    button, input { font: inherit; } button { cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); } button:disabled { cursor: not-allowed; opacity: 0.6; transform: none !important; }
+    main { max-width: 1000px; width: 100%; margin: auto; }
+    header { text-align: center; margin-bottom: 40px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 16px; }
+    h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; background: linear-gradient(135deg, var(--text-main), #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    header p { color: var(--text-muted); font-size: 16px; }
+    .layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: stretch; }
+    .card { background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--surface-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.6); }
+    h2 { font-size: 20px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+    .step { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 600; font-size: 15px; } 
+    .id { width: 100%; border: 2px solid transparent; border-radius: var(--radius-md); padding: 16px; text-align: center; font-size: 36px; font-weight: 700; letter-spacing: 16px; color: var(--text-main); background: #f1f5f9; outline: none; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); } .id:focus { background: #ffffff; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); } .id::placeholder { color: #cbd5e1; font-weight: 400; }
+    .name { margin: 16px 0 0; min-height: 54px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--text-muted); transition: all 0.3s ease; font-weight: 500; } .name.valid { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); } .name.invalid { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+    .primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: 0; border-radius: var(--radius-md); padding: 18px 24px; width: 100%; font-weight: 600; font-size: 16px; margin-top: 32px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25); } .primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.35); }
+    .stat { display: flex; flex-direction: column; justify-content: center; } .live { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 24px; } .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse 2s infinite; }
+    .number-card { background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)); border-radius: var(--radius-md); padding: 24px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.5); text-align: center; } .today { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; } .number { font-size: 72px; line-height: 1; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } .number small { font-size: 18px; font-weight: 500; -webkit-text-fill-color: var(--text-muted); }
+    .track { height: 10px; background: rgba(0,0,0,0.05); border-radius: 100px; margin: 24px 0 12px; overflow: hidden; } .bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 100px; } .split { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .outline { background: rgba(255,255,255,0.5); border: 1px solid var(--surface-border); color: var(--text-main); border-radius: var(--radius-sm); width: 100%; padding: 12px; margin-top: 12px; font-weight: 500; } .outline:hover { background: #fff; border-color: #cbd5e1; }
+    .status { font-size: 12px; color: var(--text-muted); margin-top: 16px; text-align: center; }
+    dialog { border: 0; border-radius: var(--radius-lg); padding: 40px 32px; max-width: 400px; width: calc(100% - 48px); margin: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); text-align: center; opacity: 0; transform: scale(0.95) translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); } dialog[open] { opacity: 1; transform: scale(1) translateY(0); } dialog::backdrop { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); transition: 0.3s; }
+    .dialog-icon { width: 80px; height: 80px; margin: 0 auto 24px; background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.2)); color: var(--success); border-radius: 50%; display: grid; place-items: center; font-size: 40px; }
+    .message { padding: 14px; border-radius: var(--radius-sm); background: rgba(239, 68, 68, 0.1); color: var(--danger); margin-top: 16px; font-size: 14px; text-align: center; font-weight: 500; } .message.success { background: rgba(16, 185, 129, 0.1); color: var(--success); } [hidden] { display: none !important; }
+    @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(99, 102, 241, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
+    @media(max-width: 800px) { body { padding: 16px; align-items: flex-start; } .layout { grid-template-columns: 1fr; gap: 16px; } .card { padding: 24px; border-radius: 24px; } .summary { grid-row: 1; } h1 { font-size: 28px; } .number { font-size: 56px; } }
+</style>
+</head>
+<body>
+<main>
+    <header>
+        <div class="badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Class Check-in</div>
+        <h1>ลงชื่อเข้าเรียนประจำวัน</h1>
+        <p>กรอกรหัสประจำตัวเพื่อบันทึกการเข้าเรียน</p>
+    </header>
+
+    <div class="layout">
+        <section class="card">
+            <h2><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>ลงชื่อเข้าเรียน</h2>
+            <form id="attendanceForm">
+                <label class="step" for="studentId">รหัสประจำตัว 3 ตัวท้าย</label>
+                <input id="studentId" class="id" type="text" inputmode="numeric" pattern="[0-9]{3}" maxlength="3" placeholder="012" required autocomplete="off">
+                <div id="nameDisplay" class="name">กรอกรหัสเพื่อแสดงชื่อของคุณ</div>
+
+                <button id="submitBtn" class="primary" disabled>บันทึกการเข้าเรียน</button>
+                <div id="message" class="message" hidden></div>
+            </form>
+        </section>
+
+        <aside class="summary">
+            <section class="card stat">
+                <div class="live"><span class="dot"></span>Live Dashboard</div>
+                <div class="number-card">
+                    <div id="dateDisplay" class="today"></div>
+                    <div class="number"><span id="checkedCount">—</span><small>คน</small></div>
+                </div>
+                <div class="split">
+                    <span>มาแล้ว</span>
+                    <span>ยังไม่ลงชื่อ <b id="remainingCount">—</b> คน</span>
+                </div>
+                <div class="track" aria-valuemin="0" aria-valuemax="28" id="progress">
+                    <div id="progressBar" class="bar"></div>
+                </div>
+                <button class="outline" id="detailsBtn">ดูสรุปการลงชื่อทั้งหมด</button>
+                <button class="outline" id="refreshBtn">อัปเดตข้อมูลล่าสุด</button>
+                <p class="status" id="statsStatus">กำลังโหลดข้อมูล…</p>
+            </section>
+        </aside>
+    </div>
+</main>
+
+<dialog id="summaryDialog">
+    <h2 style="justify-content:center;">สรุปการลงชื่อวันนี้</h2>
+    <p id="summaryText" style="color: var(--text-main); font-size: 16px; margin: 16px 0;">กำลังโหลดข้อมูล…</p>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 24px;">นับนักเรียนแต่ละคนเพียงครั้งเดียวต่อวัน<br>ตามเวลาในประเทศไทย</p>
+    <button class="primary" id="closeSummary" style="margin-top:0;">ปิดหน้าต่าง</button>
+</dialog>
+
+<dialog id="successDialog">
+    <div class="dialog-icon">✓</div>
+    <h2 style="justify-content:center;" id="successTitle">ลงชื่อเรียบร้อย!</h2>
+    <p id="successText" style="font-size: 18px; font-weight: 500; margin: 8px 0;"></p>
+    <p id="successCount" style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;"></p>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <a id="homeworkBtn" href="#" target="_blank" class="primary" style="display: none; text-decoration: none; align-items: center; justify-content: center; gap: 8px; margin-top: 0; box-sizing: border-box;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            ส่งการบ้าน / รับคะแนน
+        </a>
+        <button class="outline" id="closeSuccess" style="margin-top:0;">ตกลง (ปิดหน้าต่าง)</button>
+    </div>
+</dialog>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyusqmR_UxGF32Y6ln08dL3NFt-IeevYkjIVlpDl_oCGMSI3wzQzO5mWJmdEPf8xb3J/exec';
+
+const students = {
+"006":"นายปิยะวัฒน์ จงวัตร","015":"นางสาวกมลชนก เรืองธรรม","020":"นายกิตติศักดิ์ โต๊ะจริญ","022":"นางสาวจันทภา ทบพักตร์","025":"นางสาวจิรนันท์ สังข์วงค์","027":"นางสาวชลดา ไหมน้ำคำ","032":"นายณัฐชัย มีชัย","037":"นายธีรภัทร แสงโกโพ","040":"นางสาวนรินธร ใบพิบูล","044":"นางสาวประภัสสร วันทองทักษ์","047":"นางสาวพรรณวริสา ตรีสอน","049":"นางสาวพอเพียง บุญมั่ง","051":"นายพิชญปกรณ์ สุขแสวง","053":"นายพิทวัส สาระรัตน์","056":"นางสาวพิมพ์ชนก ไชขุนทด","060":"นายยุทธชัย มาตขาว","066":"นางสาวสุชานันท์ วิชาพุช","070":"นายอริย์ธัช อุณาพยับ","073":"นางสาวกุลชา เศรษฐมาตย์","075":"นางสาวจรรยพร ตันติ๊บ","079":"นายธนภัทร อาษาธง","083":"นายนัทธพงศ์ งามเมืองปัก","086":"นางสาวพิรยากร ทิพมาตย์","088":"นายภูสิต สายจันทร์","090":"นางสาววิลาวัลย์ มาลาศรี","093":"นายสุรเดช แช่มมาลี"
+};
+
+const homeworkLinks = {
+  "006": "https://doj.io/s/?s=6ab65055bb43b80df2b657b3&t=6RsqqYb93sUgaL4dBrwM7fNdiDJ1ttPVH1un4htQ7XcD5md22PE6BNh4myyYXuY9VR",
+  "015": "https://doj.io/s/?s=6ab65055bb43b80df2b657b4&t=2errtCEatf9pVbZtgE2CoY6yrch4QuJnxdri6JgYMC7TYuoboNn5yjHVSLv7ifo3id",
+  "020": "https://doj.io/s/?s=6ab65055bb43b80df2b657b5&t=5FFCcim8Qv1y7T2jfaAGDWFspmASnRv1FXVxgJuZEAz7RxhaJYMgNggFfswFq9qyqZ",
+  "022": "https://doj.io/s/?s=6ab65055bb43b80df2b657b6&t=6eN1JdGoHerp5aUwHg3to5NcUgfSFiAuWSkAVZk5rAJBk5iHoSXmA5gc1Fc3n2NoaL",
+  "025": "https://doj.io/s/?s=6ab65055bb43b80df2b657b7&t=3nVGTJT2j41ohBL8Qshfs6pGYDkwgFfz7zpZuQGiXvFN9dWZuPpXFZtbc6mG5y1Npy",
+  "027": "https://doj.io/s/?s=6ab65055bb43b80df2b657b8&t=7rXiVWzLAZaCaF7TULVPYBa4b5Yyb8R8yeqbh7oCBRfJWehwC7dn4UNUN7LSCz513M",
+  "032": "https://doj.io/s/?s=6ab65055bb43b80df2b657b9&t=sbjyjhReLLjjgbpogJpKmbwYbyji4bidAnZ1Y2gyFpGDUn6oGRVdE2rwSvPejMDo8",
+  "037": "https://doj.io/s/?s=6ab65055bb43b80df2b657ba&t=6sEfjHBdxoAQ8snP5f2TqdgkzYRhVGcA9PtoKytcGZPHb74FhMr47f57gMqGTzwhRy",
+  "040": "https://doj.io/s/?s=6ab65055bb43b80df2b657bb&t=ABohLiF2RryxVr9Do3u6ZR4aZbai3TRgX9vE6HGSpWug9taG6K3M8fV1Ad799unbF4",
+  "044": "https://doj.io/s/?s=6ab65055bb43b80df2b657bc&t=6GxSUhgN5pSB46M8xRgEZBec7ec7io1rE2h1KbsAk27ikLpuLADAWCAFh9wvKXG3hd",
+  "047": "https://doj.io/s/?s=6ab65055bb43b80df2b657bd&t=7m2vzcGst4iy6eVs88vYJ2ZzQPDNJqRLAv7KjCiy3VhsZX2vBAutqF69UWWPadQGNV",
+  "049": "https://doj.io/s/?s=6ab65055bb43b80df2b657be&t=2BN8dZqiwHkzRxJ19viE6hn5MkLAxL6c5xvm8vLaGT134Jh2HNqhAZrhToSfaMii6B",
+  "051": "https://doj.io/s/?s=6ab65055bb43b80df2b657bf&t=ZvnBSch8qWzGAVvm4RrwxReG22Q3yfUeQ5KSWWoEVnro2atKsoxY1aB2FWZNLhF1M",
+  "053": "https://doj.io/s/?s=6ab65055bb43b80df2b657c0&t=3bsEi5bkaTCerUHzHEj2WWgWkgwL8GjoVJoqEN7Fe9oibDSo1K2kUaTfNuYMRjDS1H",
+  "056": "https://doj.io/s/?s=6ab65055bb43b80df2b657c1&t=26nzTRtE9kuNTWvCXcdU88Fe998U2qpTh2dVhKUhiEARkN5asfwScnrCw5xts7xLK8",
+  "060": "https://doj.io/s/?s=6ab65055bb43b80df2b657c2&t=7moqapc7nVVmT7x7i7Qy4N12UXQfnHSWcdE6yY1ifbf5hbwdfgFAJD9P75ibkoTAhR",
+  "066": "https://doj.io/s/?s=6ab65055bb43b80df2b657c3&t=745bqqsecjznEecnLEkF45xe3z4duGHzv5aNj9gexKN9AX9wpkt8Q9NeGWgSgxMKbC",
+  "070": "https://doj.io/s/?s=6ab65055bb43b80df2b657c4&t=5YVoiqeskkavjSDGzbFSUZJY2GTvvNCNzC4KQvq1YmixvWyYNxcYanTXSypkL4MKRt",
+  "073": "https://doj.io/s/?s=6ab65055bb43b80df2b657c5&t=9pNPDevYAvUKPvZQZaNrspLF96Y6ahBZotmWoWU9qodDt2UxnoRiXseCZRVgpP3acJ",
+  "075": "https://doj.io/s/?s=6ab65055bb43b80df2b657c6&t=m34kUHHbnDjnTcMLKvX8TkMCE8vjvFK3CN89sDWdxhgyCiHbhmzCrpCcDWW5DLWBe",
+  "079": "https://doj.io/s/?s=6ab65055bb43b80df2b657c7&t=4BhVjsQFCgjZaVnLwHD7DSt55Y8LcQE6EbQpsjtPvkkrmfTzSf9sQwi7PoCE5Y5cCh",
+  "083": "https://doj.io/s/?s=6ab65055bb43b80df2b657c8&t=rcDvGsrYmZaoKKaufe2F5mhVMi13uGKTb7zsFxs2DFoWTUoKQArFCYoDzuDadQqLZ",
+  "086": "https://doj.io/s/?s=6ab65055bb43b80df2b657c9&t=879k5orhr7AgtK4UXvy9EkowvDjuLw4rtWkY2JD7DzzJeRQKJhy6SjZ77XgupV4Tba",
+  "088": "https://doj.io/s/?s=6ab65055bb43b80df2b657ca&t=7tk6F44jMbcbe6Q1QTNhtxJ82fCYcH6UKKoUXZb7jhy76T5D3MfgpZSTuZ3T6MAaah",
+  "090": "https://doj.io/s/?s=6ab65055bb43b80df2b657cb&t=8HUZSapSB8Wpch56yeJPWQQhVrWTur4wLuRJcgfEArJnh57dyqA9EHF21xSAVejksM",
+  "093": "https://doj.io/s/?s=6ab65055bb43b80df2b657cc&t=6V9jtHT35BVvPsQSsB67aJPaj8gjKPkMgkKasJekaNycvvhmgmxhz7UMjtjF8xMwEQ"
+};
+
+const $ = id => document.getElementById(id);
+const form = $('attendanceForm'), idInput = $('studentId');
+let busy = false, statsBusy = false, summary = null, statsGeneration = 0;
+const total = Object.keys(students).length;
+$('progress').setAttribute('aria-valuemax', total);
+
+function dateText(value) {return new Date(value + 'T12:00:00+07:00').toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Bangkok'});}
+function localDate(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+$('dateDisplay').textContent = dateText(localDate());
+
+function showMessage(text, success=false){
+    $('message').textContent=text;
+    $('message').className='message'+(success?' success':'');
+    $('message').hidden=false;
+}
+
+function updateForm(){
+    const name = students[idInput.value];
+    $('nameDisplay').textContent = name ? '✓ ' + name : (idInput.value.length === 3 ? 'ไม่พบรหัสนี้ กรุณาตรวจสอบอีกครั้ง' : 'กรอกรหัสเพื่อแสดงชื่อของคุณ');
+    $('nameDisplay').className = 'name' + (name ? ' valid' : (idInput.value.length === 3 ? ' invalid' : ''));
+    $('submitBtn').disabled = busy || !name;
+}
+idInput.addEventListener('input',()=>{idInput.value=idInput.value.replace(/[^0-9]/g,'').slice(0,3);updateForm();});
+
+async function request(action,payload){
+    if(window.google&&google.script&&google.script.run){
+        return new Promise((resolve,reject)=>{const runner=google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);if(action==='stats')runner.getSummary();else runner.submitAttendance(payload);});
+    }
+    const response=await fetch(action==='stats'?SCRIPT_URL+'?action=stats&t='+Date.now():SCRIPT_URL,action==='stats'?{redirect:'follow'}:{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow'});
+    if(!response.ok)throw new Error('ติดต่อระบบไม่สำเร็จ');
+    try{return await response.json();}catch{throw new Error('ระบบตอบกลับไม่ถูกต้อง');}
+}
+
+function renderStats(data){
+    if(!data||!/^\d{4}-\d{2}-\d{2}$/.test(data.date)||!Number.isInteger(data.count)||data.count<0||data.count>total)throw new Error('ข้อมูลสรุปไม่ถูกต้อง');
+    summary=data;
+    $('checkedCount').textContent=data.count;
+    $('remainingCount').textContent=total-data.count;
+    $('progressBar').style.width=(data.count/total*100)+'%';
+    $('progress').setAttribute('aria-valuenow',data.count);
+    $('dateDisplay').textContent=dateText(data.date);
+    $('summaryText').textContent='ลงชื่อแล้ว '+data.count+' คน จากทั้งหมด '+total+' คน • ยังไม่ลงชื่อ '+(total-data.count)+' คน';
+    $('statsStatus').textContent='อัปเดตล่าสุด '+new Date().toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadStats(){
+    if(statsBusy||busy)return;
+    statsBusy=true;const generation=statsGeneration;$('refreshBtn').disabled=true;
+    try{const result=await request('stats');if(generation!==statsGeneration)return;if(result.status!=='success')throw new Error(result.message||'โหลดจำนวนไม่สำเร็จ');renderStats(result);}
+    catch(error){if(generation===statsGeneration){$('statsStatus').textContent='อัปเดตไม่สำเร็จ • กดอัปเดตจำนวนเพื่อลองอีกครั้ง';if(!summary)$('summaryText').textContent='ยังโหลดจำนวนไม่ได้ กรุณาลองอัปเดตอีกครั้ง';}}
+    finally{statsBusy=false;$('refreshBtn').disabled=false;}
+}
+
+$('refreshBtn').addEventListener('click',loadStats);
+$('detailsBtn').addEventListener('click',()=>{$('summaryDialog').showModal();loadStats();});
+$('closeSummary').addEventListener('click',()=>$('summaryDialog').close());
+$('closeSuccess').addEventListener('click',()=>$('successDialog').close());
+
+form.addEventListener('submit',async event=>{
+    event.preventDefault();if(busy)return;
+    const id = idInput.value, name = students[id];
+    if(!name) return;
+    
+    busy = true; statsGeneration++; idInput.disabled = true; updateForm();
+    $('submitBtn').textContent = 'กำลังบันทึกข้อมูล...'; $('message').hidden = true;
+    
+    try{
+        const result = await request('save', { id, name });
+        if(result.status !== 'success') throw new Error(result.message || 'บันทึกไม่สำเร็จ');
+        
+        $('successTitle').textContent = result.alreadyChecked ? 'คุณลงชื่อวันนี้แล้ว' : 'ลงชื่อเรียบร้อย!';
+        $('successText').textContent = name;
+        renderStats(result);
+        $('successCount').textContent = 'วันนี้ลงชื่อแล้ว ' + result.count + ' คน จากทั้งหมด ' + total + ' คน';
+        
+        const hwLink = homeworkLinks[id];
+        if(hwLink) {
+            $('homeworkBtn').href = hwLink;
+            $('homeworkBtn').style.display = 'flex';
+        } else {
+            $('homeworkBtn').style.display = 'none';
+        }
+
+        form.reset(); $('successDialog').showModal();
+    }catch(error){showMessage((error.message||'ส่งข้อมูลไม่สำเร็จ')+' หากเครือข่ายขัดข้อง สามารถลองส่งอีกครั้งได้');}
+    finally{busy=false; idInput.disabled=false; $('submitBtn').textContent='บันทึกการเข้าเรียน'; updateForm();}
+});
+
+loadStats();setInterval(()=>{if(!document.hidden)loadStats();},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadStats();});
+</script>
+</body>
+</html>
